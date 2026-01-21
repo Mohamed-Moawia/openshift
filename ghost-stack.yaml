@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ghost-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ghost
+  template:
+    metadata:
+      labels:
+        app: ghost
+    spec:
+      containers:
+      - name: ghost
+        image: ghost:5-alpine
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+        env:
+        - name: database__client
+          value: "pg"
+        - name: database__connection__host
+          value: "postgres"
+        - name: database__connection__user
+          value: "postgres"
+        - name: database__connection__password
+          value: "devops-secret"
+        - name: database__connection__database
+          value: "ghost"
+        - name: url
+          value: http://mylab.test
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ghost-service
+spec:
+  selector:
+    app: ghost
+  ports:
+    - port: 80
+      targetPort: 2368
